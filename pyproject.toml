@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "potosi"
+version = "0.1.0"
+description = "Open trade from telegram signals channel"
+authors = ["Humberto dos Reis Rodrigues <rrodrigues.humberto@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Telethon = "^1.18.2"
+demoji = "^0.4.0"
+unicorn-binance-websocket-api = "^1.28.0"
+python-binance = "^0.7.5"
+peewee = "^3.14.0"
+Cython = "^0.29.21"
+apsw = "^3.9.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+coverage = {version = "^5.3.1", extras = ["toml"]}
+pytest-cov = "^2.10.1"
+pytest-mock = "^3.4.0"
+nox = "^2020.12.31"
+black = "^20.8b1"
+flake8 = "^3.8.4"
+flake8-bandit = "^2.1.2"
+flake8-black = "^0.2.1"
+flake8-bugbear = "^20.11.1"
+flake8-import-order = "^0.18.1"
+safety = "^1.10.0"
+pre-commit = "^2.9.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.paths]
+source = ["potosi"]
+
+[tool.coverage.run]
+branch = true
+source = ["potosi"]
+
+[tool.coverage.report]
+show_missing = true
