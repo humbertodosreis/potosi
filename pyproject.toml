@@ -13,6 +13,7 @@ python-binance = "^0.7.5"
 peewee = "^3.14.0"
 Cython = "^0.29.21"
 apsw = "^3.9.2"
+dynaconf = "^3.1.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -28,6 +29,7 @@ flake8-bugbear = "^20.11.1"
 flake8-import-order = "^0.18.1"
 safety = "^1.10.0"
 pre-commit = "^2.9.3"
+mypy = "^0.790"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
