@@ -18,6 +18,8 @@ Tutorials
 * https://medium.com/better-programming/how-to-get-data-from-telegram-82af55268a4b
 * https://towardsdatascience.com/introduction-to-the-telegram-api-b0cd220dbed2
 * https://algotrading101.com/learn/binance-python-api-guide/
+* https://alysivji.github.io/mocking-functions-inputs-args.html
+* https://gaopinghuang0.github.io/2018/08/03/python3-import-and-project-layout
 
 Dependencies
 ------------
