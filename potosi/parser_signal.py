@@ -12,7 +12,7 @@ class ParserSignal(object):
         index = value.find(char)
         return value[:index].strip()
 
-    def __download_codes(self):
+    def download_codes(self):
         if self.__is_downloaded_codes is False:
             demoji.download_codes()
             self.__is_downloaded_codes = True
@@ -21,7 +21,7 @@ class ParserSignal(object):
         """
         Given a text with some signal, returns either dict.
         """
-        self.__download_codes()
+        # self.__download_codes()
 
         lines = demoji.replace(signal_text, "").splitlines()
 
@@ -31,6 +31,8 @@ class ParserSignal(object):
             if not v.strip() or len(lines) - 1 == i:
                 chunks.append(lines[last_index:i])
                 last_index = i + 1
+
+        chunks = filter(lambda x: len(x) > 0, chunks)
 
         signal = {
             "market": None,
@@ -67,7 +69,7 @@ class ParserSignal(object):
         return signal
 
     def parser_signal_closed(self, signal_text: str) -> str:
-        self.__download_codes()
+        # self.__download_codes()
 
         signal_text = demoji.replace(signal_text, "")
         match = re.search(r"#([A-Z0-9]+) Signal Closed", signal_text)
@@ -78,7 +80,7 @@ class ParserSignal(object):
         return match.group(1)
 
     def parser_stoploss_updated(self, signal_text: str) -> dict:
-        self.__download_codes()
+        # self.__download_codes()
 
         line_symbol, _, line_previous, line_updated, _, _ = demoji.replace(
             signal_text, ""

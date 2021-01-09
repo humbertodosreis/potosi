@@ -1,0 +1,9 @@
+⚠️ #ETHUSDT Trailing Stoploss Hit
+〽️  BinanceFutures (Long x5)
+
+💰 Stop Price - 604
+
+⏰ Signal Duration (Days) 1
+ℹ️ Total Targets Hit -  3 / 8
+
+💸 Total Profit 23.22%

@@ -1,0 +1,9 @@
+⛔️ #ATOMUSDT Stoploss Hit
+〽️  BinanceFutures (Long x5)
+
+💰 Stop Price - 5.37
+
+⏰ Signal Duration (Days) 0
+ℹ️ Total Targets Hit -  0 / 9
+
+🙈 Loss -18.19%
