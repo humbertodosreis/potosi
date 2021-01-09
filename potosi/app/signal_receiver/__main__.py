@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from os import path
+from os import environ, path
 import re
 
 from binance.client import Client as BinanceClient
@@ -24,7 +24,7 @@ client = TelegramClient(
 )
 
 # user_input_channel = 'wcsebot'
-USER_INPUT_CHANNEL = "me"
+USER_INPUT_CHANNEL = environ.get("USER_INPUT_CHANNEL")
 
 # binance client
 binance_client = BinanceClient(settings.BINANCE_API_KEY, settings.BINANCE_API_SECRET)
