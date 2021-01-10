@@ -18,7 +18,6 @@ class TradeService(object):
         self.trading = trading
 
     def create(self, raw_signal: str):
-        # try:
         signal_parsed = self.parser_signal.parser_signal_created(raw_signal)
 
         # 20 USD
@@ -88,13 +87,8 @@ class TradeService(object):
             place_type=OrderPlaceType.EXIT,
             amount=sl_order["origQty"],
         )
-        # except BinanceAPIException as e:
-        #     logger.exception(e)
-        # except Exception as e:
-        #     logger.exception(e)
 
     def close(self, raw_signal):
-        # try:
         symbol = self.parser_signal.parser_signal_closed(raw_signal)
         trade = Trade.get_or_none(
             (Trade.symbol == symbol) & (Trade.is_opened == True)  # noqa: E712
@@ -110,8 +104,6 @@ class TradeService(object):
 
         trade.is_opened = False
         trade.save()
-        # except Exception as e:
-        #     logger.exception('Exception occurred')
 
     def update(self, order_event: OrderUpdateEvent):
         # quando preenchido

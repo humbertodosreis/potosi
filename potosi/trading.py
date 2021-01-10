@@ -50,6 +50,7 @@ class Trading(object):
         price=None,
         stop_price=None,
         reduce_only=False,
+        leverage=None,
     ) -> dict:
         params = {
             "symbol": symbol,
@@ -60,13 +61,8 @@ class Trading(object):
             "reducyOnly": reduce_only,
         }
 
-        # entry = decimal.Decimal(631.5)
-        # amount * leverage
-        # amount = decimal.Decimal(100)
-        # quantity = decimal.Decimal(amount / price)
-
-        # order_type = Client.ORDER_TYPE_LIMIT
-        # time_in_force = Client.TIME_IN_FORCE_GTC
+        if leverage is not None:
+            self.client.futures_change_leverage(symbol=symbol, leverage=leverage)
 
         if price:
             params["price"] = self.refine_price(symbol, price)
@@ -77,6 +73,15 @@ class Trading(object):
         order = self.client.futures_create_order(**params)
 
         return order
+
+    def create_multiple_orders(self, orders):
+        # chunk_size = 5
+        # chunked_orders = [
+        #     orders[i * chunk_size : (i + 1) * chunk_size]
+        #     for i in range((len(orders) + chunk_size - 1) // chunk_size)
+        # ]
+
+        pass
 
     def close_multiple_orders(self, symbol, orders):
         responses = []

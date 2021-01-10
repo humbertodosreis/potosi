@@ -54,33 +54,28 @@ def is_stoploss_updated(msg: str) -> bool:
 
 @client.on(events.NewMessage(chats=USER_INPUT_CHANNEL, pattern=is_signal_created))
 async def message_created_trade(event):
-    logger.info("new signal received")
-
-    trade_service.create(event.message.message)
-
-    logger.info("trade created")
+    try:
+        logger.info("new signal received")
+        trade_service.create(event.message.message)
+        logger.info("trade created")
+    except Exception as e:
+        logger.error("A error occurs when trying create trade")
+        logger.exception(e)
 
 
 @client.on(events.NewMessage(chats=USER_INPUT_CHANNEL, pattern=is_stoploss_updated))
 async def message_stoploss(event):
-    logger.info("Stoploss Updated")
-
-    # obtem o saldo da conta
-    # multiplica o valor por alancagem
-    # divide o valor pelo numero de entradas (70-30)
-    # calcula a quantidade de compra para cada entrada
-    # Cria uma ordem stoploss com o valor total
-    # Cria as ordens de entrada
-
-    # procurar a ultima orderm aberta para o par
-    # atualizar o stoploss
-    # enviar notificação para o telegram
+    logger.info("stoploss updated")
 
 
 @client.on(events.NewMessage(chats=USER_INPUT_CHANNEL, pattern=is_signal_closed))
 async def message_signal_close(event):
-    logger.info("Signal Closed")
-    trade_service.close(raw_signal=event.message.message)
+    try:
+        logger.info("signal closed")
+        trade_service.close(raw_signal=event.message.message)
+    except Exception as e:
+        logger.error("A error occurs when trying close trade")
+        logger.exception(e)
 
 
 if __name__ == "__main__":

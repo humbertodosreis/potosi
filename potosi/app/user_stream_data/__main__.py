@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import json
-from pprint import pprint
 import threading
 import time
 
@@ -50,10 +49,12 @@ def print_stream_data_from_stream_buffer(binance_websocket_api_manager):
                 stream = json.loads(oldest_stream_data_from_stream_buffer)
 
                 if stream["e"] == "ORDER_TRADE_UPDATE":
-                    event = OrderUpdateEvent.json_parse(stream)
-                    pprint(event)
-
-                    trade_service.update(order_event=event)
+                    try:
+                        logger.info("Order update received")
+                        event = OrderUpdateEvent.json_parse(stream)
+                        trade_service.update(order_event=event)
+                    except Exception as e:
+                        logger.exception(e)
 
 
 # monitor the streams
