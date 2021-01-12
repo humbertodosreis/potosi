@@ -5,7 +5,10 @@ repos:
     -   id: check-yaml
         exclude: |
             (?x)^(
-                main.yml
+                main.yml|
+                appspec.yml|
+                buildspec.yml|
+                setup.yml
             )$
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
