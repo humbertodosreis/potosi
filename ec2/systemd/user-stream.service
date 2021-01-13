@@ -8,7 +8,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=ec2-user
-ExecStart=poetry run python potosi/app/user_stream_data
+ExecStart=/home/ec2-user/.poetry/bin/poetry run python potosi/app/user_stream_data
 WorkingDirectory=/home/ec2-user/app/release
 
 [Install]

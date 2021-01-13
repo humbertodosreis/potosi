@@ -21,6 +21,8 @@ artifacts:
   files:
     - 'ec2/**/*'
     - 'potosi/**/*.py'
+    - 'data/**/*'
+    - .env
     - poetry.lock
     - pyproject.toml
     - appspec.yml

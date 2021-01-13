@@ -8,7 +8,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=ec2-user
-ExecStart=poetry run python potosi/app/signal_receiver
+ExecStart=/home/ec2-user/.poetry/bin/poetry run python potosi/app/signal_receiver
 WorkingDirectory=/home/ec2-user/app/release
 
 [Install]

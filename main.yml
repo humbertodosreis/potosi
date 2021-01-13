@@ -84,7 +84,7 @@ Resources:
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:2.0
+        Image: aws/codebuild/standard:5.0
       Source:
         Type: CODEPIPELINE
 
@@ -196,11 +196,6 @@ Resources:
           packages:
             yum:
               ruby: [ ]
-              gcc: [ ]
-              wget: [ ]
-              openssl-devel: [ ]
-              bzip2-devel: [ ]
-              libffi-devel: [ ]
           files:
             /home/ec2-user/install:
               source: !Sub "https://aws-codedeploy-${AWS::Region}.s3.amazonaws.com/latest/install"
@@ -225,6 +220,7 @@ Resources:
 
           # Update all packages
           yum -y update
+          yum -y install gcc openssl-devel bzip2-devel libffi-devel
 
           # Get latest cfn scripts; https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#cfninit
           yum install -y aws-cfn-bootstrap
@@ -237,15 +233,15 @@ Resources:
             cd Python-3.9.1
             ./configure --enable-optimizations
             sudo make altinstall
-            sudo update-alternatives --install /usr/bin/python python /usr/local/bin/python3.9 0
+            #sudo update-alternatives --install /usr/bin/python python /usr/local/bin/python3.9 0
 
             # Dot source the files to ensure that variables are available within the current shell
             #. /home/ec2-user/.nvm/nvm.sh
             . /home/ec2-user/.bashrc
 
-            curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+            curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | /usr/local/bin/python3.9 -
 
-            source $HOME/.poetry/env
+            source /home/ec2-user/.poetry/env
 
             # Create log directory
             mkdir -p /home/ec2-user/app/logs

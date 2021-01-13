@@ -11,17 +11,24 @@ permissions:
     owner: ec2-user
     group: ec2-user
 #hooks:
-#  AfterInstall:
-#    - location: ec2/scripts/install_dependencies.sh
-#        timeout: 300
-#        runas: ec2-user
-#  ApplicationStart:
-#    # start the application
-#    - location: ec2/scripts/start-service.sh
-#      timeout: 300
-#      runas: ec2-user
-#  ApplicationStop:
-#    # stop the application
-#    - location: ec2/scripts/stop-service.sh
-#      timeout: 300
-#      runas: ec2-user
+#  BeforeInstall:
+#    - location: Scripts/UnzipResourceBundle.sh
+#    - location: Scripts/UnzipDataBundle.sh
+  AfterInstall:
+    - location: ec2/scripts/install_dependencies.sh
+        timeout: 300
+        runas: ec2-user
+  ApplicationStart:
+    # start the application
+    - location: ec2/scripts/start-service.sh
+      timeout: 300
+      runas: ec2-user
+  ApplicationStop:
+    # stop the application
+    - location: ec2/scripts/stop-service.sh
+      timeout: 300
+      runas: ec2-user
+#  ValidateService:
+#    - location: Scripts/MonitorService.sh
+#      timeout: 3600
+#      runas: codedeployuser
