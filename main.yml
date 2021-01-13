@@ -239,13 +239,13 @@ Resources:
             sudo make altinstall
             sudo update-alternatives --install /usr/bin/python python /usr/local/bin/python3.9 0
 
-            source $HOME/.poetry/env
-
             # Dot source the files to ensure that variables are available within the current shell
             #. /home/ec2-user/.nvm/nvm.sh
             . /home/ec2-user/.bashrc
 
             curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+
+            source $HOME/.poetry/env
 
             # Create log directory
             mkdir -p /home/ec2-user/app/logs
