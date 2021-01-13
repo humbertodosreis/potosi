@@ -16,8 +16,8 @@ hooks:
 #    - location: Scripts/UnzipDataBundle.sh
   AfterInstall:
     - location: ec2/scripts/install_dependencies.sh
-        timeout: 300
-        runas: ec2-user
+      timeout: 300
+      runas: ec2-user
   ApplicationStart:
     # start the application
     - location: ec2/scripts/start-service.sh
