@@ -14,6 +14,7 @@ peewee = "^3.14.0"
 Cython = "^0.29.21"
 apsw = "^3.9.2"
 dynaconf = "^3.1.2"
+psycopg2 = { version = "^2.8.6", optional = true }
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
@@ -30,10 +31,14 @@ flake8-import-order = "^0.18.1"
 safety = "^1.10.0"
 pre-commit = "^2.9.3"
 mypy = "^0.790"
+psycopg2-binary = "^2.8.6"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.extras]
+pgsql = ["psycopg2"]
 
 [tool.coverage.paths]
 source = ["potosi"]

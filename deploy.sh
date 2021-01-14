@@ -21,7 +21,7 @@ aws cloudformation deploy \
   --region $REGION \
   --profile $CLI_PROFILE \
   --stack-name $STACK_NAME-setup \
-  --template-file setup.yml \
+  --template-file cfn-templates/setup.yml \
   --no-fail-on-empty-changeset \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameter-overrides \
@@ -33,7 +33,7 @@ aws cloudformation deploy \
   --region $REGION \
   --profile $CLI_PROFILE \
   --stack-name $STACK_NAME \
-  --template-file main.yml \
+  --template-file cfn-templates/main.yml \
   --no-fail-on-empty-changeset \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameter-overrides \
@@ -44,9 +44,21 @@ aws cloudformation deploy \
   GitHubPersonalAccessToken="$GH_ACCESS_TOKEN" \
   CodePipelineBucket="$CODEPIPELINE_BUCKET"
 
+# Deploys RDS
+echo -e "\n\n=========== Deploying rds.yml ==========="
+aws cloudformation deploy \
+  --region $REGION \
+  --profile $CLI_PROFILE \
+  --stack-name $STACK_NAME-db \
+  --template-file cfn-templates/rds.yml \
+  --no-fail-on-empty-changeset \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides \
+  MainStackName="$STACK_NAME"
+
 # If the deploy succeeded, show the DNS name of the created instance
-if [ $? -eq 0 ]; then
-  aws cloudformation list-exports \
-    --profile default \
-    --query "Exports[?Name=='InstanceEndpoint'].Value"
-fi
+#if [ $? -eq 0 ]; then
+#  aws cloudformation list-exports \
+#    --profile default \
+#    --query "Exports[?Name=='InstanceEndpoint'].Value"
+#fi

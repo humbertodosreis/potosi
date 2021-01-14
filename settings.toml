@@ -1,0 +1,10 @@
+[default]
+version = "1.0.0"
+name = "potosi"
+ENV="development"
+USER_INPUT_CHANNEL="me"
+DB_USER="postgres"
+DB_PASSWORD="123456"
+DB_NAME="postgres"
+DB_HOST="localhost"
+DB_PORT=5432

@@ -22,16 +22,17 @@ Parameters:
     Type: String
     NoEcho: true
     Description: 'A GitHub personal access token with "repo" and "admin:repo_hook" permissions.'
+
 Resources:
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: !Sub 'Internal Security group for ${AWS::StackName}'
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 8080
-          ToPort: 8080
-          CidrIp: 0.0.0.0/0
+#        - IpProtocol: tcp
+#          FromPort: 8080
+#          ToPort: 8080
+#          CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
@@ -220,7 +221,7 @@ Resources:
 
           # Update all packages
           yum -y update
-          yum -y install gcc openssl-devel bzip2-devel libffi-devel
+          yum -y install gcc openssl-devel bzip2-devel libffi-devel postgresql-devel python-devel
 
           # Get latest cfn scripts; https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#cfninit
           yum install -y aws-cfn-bootstrap
@@ -258,9 +259,13 @@ Resources:
         - Key: Name
           Value: !Ref AWS::StackName
 
+
 Outputs:
   InstanceEndpoint:
     Description: The DNS name for the created instance
-    Value: !Sub "http://${Instance.PublicDnsName}:8080"
+    Value: !GetAtt Instance.PublicDnsName
+  SecurityGroup:
+    Description: VPC Security Group
+    Value: !Ref SecurityGroup
     Export:
-      Name: InstanceEndpoint
+        Name: !Sub "${AWS::StackName}-SecurityGroupID"

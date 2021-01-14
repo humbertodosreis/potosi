@@ -12,4 +12,4 @@ sudo systemctl enable signal-receiver
 poetry env use 3.9
 # shellcheck disable=SC1090
 source $(poetry env info --path)/bin/activate
-poetry install --no-dev
+poetry install --no-dev --extras "pgsql"
