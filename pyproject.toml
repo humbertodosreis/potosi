@@ -15,6 +15,7 @@ Cython = "^0.29.21"
 apsw = "^3.9.2"
 dynaconf = "^3.1.2"
 psycopg2 = { version = "^2.8.6", optional = true, extras = ["pgsql"]}
+pysqlite3 = "^0.4.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

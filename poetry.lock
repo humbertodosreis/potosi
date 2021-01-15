@@ -804,6 +804,14 @@ optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
+name = "pysqlite3"
+version = "0.4.5"
+description = "DB-API 2.0 interface for Sqlite 3.x"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pytest"
 version = "5.4.3"
 description = "pytest: simple powerful testing with Python"
@@ -1215,7 +1223,7 @@ pgsql = ["psycopg2"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "c1b068b2bc419cedce2d00152bebc8384502d9e3ce46337064491ddcfbdba822"
+content-hash = "ebade59eb9f9847dec5963042407bf862611f709f667c5020ceea66ae4e61869"
 
 [metadata.files]
 aniso8601 = [
@@ -1757,6 +1765,9 @@ pyopenssl = [
 pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
+]
+pysqlite3 = [
+    {file = "pysqlite3-0.4.5.tar.gz", hash = "sha256:1767f6628f71c58a52320b0729888a7d1b83f864f996a9d19849bb38e3937cff"},
 ]
 pytest = [
     {file = "pytest-5.4.3-py3-none-any.whl", hash = "sha256:5c0db86b698e8f170ba4582a492248919255fcd4c79b1ee64ace34301fb589a1"},
