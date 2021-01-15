@@ -12,13 +12,13 @@ permissions:
     group: ec2-user
     mode: 664
 hooks:
-  BeforeInstall:
+#  BeforeInstall:
+#    - location: ec2/scripts/install_dependencies.sh
+#      timeout: 600
+#      runas: ec2-user
+  AfterInstall:
     - location: ec2/scripts/install_dependencies.sh
       timeout: 600
-      runas: ec2-user
-  AfterInstall:
-    - location: ec2/scripts/after_install.sh
-      timeout: 300
       runas: ec2-user
   ApplicationStart:
     # start the application
