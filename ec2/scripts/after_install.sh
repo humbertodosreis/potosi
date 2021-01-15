@@ -1,4 +1,4 @@
-##!/bin/bash -xe
+#!/bin/bash -xe
 function get_parameter () {
   local param="aws ssm get-parameter --region us-east-1"
 
