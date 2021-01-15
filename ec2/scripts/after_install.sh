@@ -48,6 +48,10 @@ APP_DB_HOST=$db_host
 APP_DB_PORT=5432
 EOF
 
+echo "--- make data dir ---"
+mkdir -p data
+sudo chown ec2-user:ec2-user data
+
 echo "--- run migrations ---"
 poetry env use 3.9
 # shellcheck disable=SC1090
