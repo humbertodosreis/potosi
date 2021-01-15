@@ -1,6 +1,6 @@
 ##!/bin/bash -xe
 function get_parameter () {
-  local param="aws ssm get-parameter "
+  local param="aws ssm get-parameter --region us-east-1"
 
   if [ "$1" == "db_password" ]
   then
