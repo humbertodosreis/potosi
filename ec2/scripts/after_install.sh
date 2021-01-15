@@ -18,6 +18,8 @@ source /home/ec2-user/.bash_profile
 
 cd /home/ec2-user/app/release || exit
 
+echo "--- Set envs ---"
+
 db_name=$(get_parameter db_name)
 db_username=$(get_parameter db_username)
 db_password=$(get_parameter db_password)
@@ -46,6 +48,13 @@ APP_DB_HOST=$db_host
 APP_DB_PORT=5432
 EOF
 
+echo "--- run migrations ---"
+poetry env use 3.9
+# shellcheck disable=SC1090
+source $(poetry env info --path)/bin/activate
+poetry run python potosi/migration.py
+
+echo "--- Starting services ---"
 sudo cp ec2/systemd/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
