@@ -27,7 +27,7 @@ cd /home/ec2-user/app/release
 #telegram_api_hash=$(get_parameter telegram_api_hash)
 #binance_api_key=$(get_parameter binance_api_key)
 #binance_api_secret=$(get_parameter binance_api_secret)
-user_input_channel=$(get_parameter user_input_channel)
+#user_input_channel=$(get_parameter user_input_channel)
 
 #sudo touch .env
 #sudo chown ec2-user:ec2-user .env
