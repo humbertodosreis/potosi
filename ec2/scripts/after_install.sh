@@ -24,9 +24,9 @@ binance_api_key=$(get_parameter binance_api_key)
 binance_api_secret=$(get_parameter binance_api_secret)
 user_input_channel=$(get_parameter user_input_channel)
 
-touch /home/ec2-user/app/release/.env
+sudo touch /home/ec2-user/app/release/.env
 
-cat > /home/ec2-user/app/release/.env << EOF
+sudo cat > /home/ec2-user/app/release/.env << EOF
 APP_ENV=production
 APP_TELEGRAM_API_ID=$telegram_api_id
 APP_TELEGRAM_API_HASH=$telegram_api_hash
@@ -39,6 +39,8 @@ DB_NAME=$db_name
 DB_HOST=$db_host
 DB_PORT=5432
 EOF
+
+sudo chown ec2-user:ec2-user /home/ec2-user/app/release/.env
 
 sudo cp ec2/systemd/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
