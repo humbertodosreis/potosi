@@ -40,11 +40,11 @@ APP_TELEGRAM_API_HASH=$telegram_api_hash
 APP_BINANCE_API_KEY=$binance_api_key
 APP_BINANCE_API_SECRET=$binance_api_secret
 APP_USER_INPUT_CHANNEL=$user_input_channel
-DB_USER=$db_username
-DB_PASSWORD=$db_password
-DB_NAME=$db_name
-DB_HOST=$db_host
-DB_PORT=5432
+APP_DB_USER=$db_username
+APP_DB_PASSWORD=$db_password
+APP_DB_NAME=$db_name
+APP_DB_HOST=$db_host
+APP_DB_PORT=5432
 EOF
 
 poetry env use 3.9
