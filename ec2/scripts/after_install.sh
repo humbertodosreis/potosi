@@ -24,6 +24,8 @@ binance_api_key=$(get_parameter binance_api_key)
 binance_api_secret=$(get_parameter binance_api_secret)
 user_input_channel=$(get_parameter user_input_channel)
 
+touch /home/ec2-user/app/release/.env
+
 cat > /home/ec2-user/app/release/.env << EOF
 APP_ENV=production
 APP_TELEGRAM_API_ID=$telegram_api_id
