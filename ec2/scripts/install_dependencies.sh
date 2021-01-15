@@ -29,7 +29,9 @@ binance_api_key=$(get_parameter binance_api_key)
 binance_api_secret=$(get_parameter binance_api_secret)
 user_input_channel=$(get_parameter user_input_channel)
 
-touch .env
+sudo touch .env
+sudo chown ec2-user:ec2-user .env
+chmod 640 .env
 
 cat > /home/ec2-user/app/release/.env << EOF
 APP_ENV=production
