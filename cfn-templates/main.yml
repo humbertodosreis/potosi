@@ -222,7 +222,7 @@ Resources:
 
           # Update all packages
           yum -y update
-          yum -y install gcc openssl-devel bzip2-devel libffi-devel postgresql-devel python-devel
+          yum -y install gcc openssl-devel bzip2-devel libffi-devel postgresql-devel python-devel sqlite3-dev
 
           # Get latest cfn scripts; https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#cfninit
           yum install -y aws-cfn-bootstrap
