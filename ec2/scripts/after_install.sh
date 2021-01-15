@@ -34,7 +34,7 @@ chmod 640 .env
 
 cat > /home/ec2-user/app/release/.env << EOF
 APP_ENV=production
-APP_TELEGRAM_API_ID=$telegram_api_id
+APP_TELEGRAM_API_ID="$telegram_api_id"
 APP_TELEGRAM_API_HASH=$telegram_api_hash
 APP_BINANCE_API_KEY=$binance_api_key
 APP_BINANCE_API_SECRET=$binance_api_secret
