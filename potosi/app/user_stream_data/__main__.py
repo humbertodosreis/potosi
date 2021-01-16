@@ -11,7 +11,6 @@ from unicorn_binance_websocket_api.unicorn_binance_websocket_api_manager import 
 
 from potosi.config import settings
 from potosi.dataclasses import OrderUpdateEvent
-from potosi.db import database
 from potosi.log import get_logger
 from potosi.parser_signal import ParserSignal
 from potosi.services import TradeService
@@ -33,28 +32,27 @@ trade_service = TradeService(trading=trade, parser=parser)
 
 
 def print_stream_data_from_stream_buffer(binance_websocket_api_manager):
-    with database:
-        while True:
-            if binance_websocket_api_manager.is_manager_stopping():
-                exit(0)
+    while True:
+        if binance_websocket_api_manager.is_manager_stopping():
+            exit(0)
 
-            oldest_stream_data_from_stream_buffer = (
-                binance_websocket_api_manager.pop_stream_data_from_stream_buffer()
-            )
+        oldest_stream_data_from_stream_buffer = (
+            binance_websocket_api_manager.pop_stream_data_from_stream_buffer()
+        )
 
-            if oldest_stream_data_from_stream_buffer is False:
-                time.sleep(0.01)
-            else:
-                logger.info(oldest_stream_data_from_stream_buffer)
-                stream = json.loads(oldest_stream_data_from_stream_buffer)
+        if oldest_stream_data_from_stream_buffer is False:
+            time.sleep(0.01)
+        else:
+            logger.info(oldest_stream_data_from_stream_buffer)
+            stream = json.loads(oldest_stream_data_from_stream_buffer)
 
-                if stream["e"] == "ORDER_TRADE_UPDATE":
-                    try:
-                        logger.info("Order update received")
-                        event = OrderUpdateEvent.json_parse(stream)
-                        trade_service.update(order_event=event)
-                    except Exception as e:
-                        logger.exception(e)
+            if stream["e"] == "ORDER_TRADE_UPDATE":
+                try:
+                    logger.info("Order update received")
+                    event = OrderUpdateEvent.json_parse(stream)
+                    trade_service.update(order_event=event)
+                except Exception as e:
+                    logger.exception(e)
 
 
 # monitor the streams

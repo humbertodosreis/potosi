@@ -18,6 +18,7 @@ class BaseModel(Model):
 #     autoconnect=False,
 # )
 
+# if settings.ENV != 'development':
 database = PostgresqlDatabase(
     settings.DB_NAME,
     user=settings.DB_USER,

@@ -15,6 +15,7 @@ class Trading(object):
         self.highest_precision = 8
         self.rate_limits = None
         self.loaded = False
+        self.symbols_leverage = {}
 
     def load(self):
         infos = self.client.futures_exchange_info()
@@ -61,8 +62,12 @@ class Trading(object):
             "reducyOnly": reduce_only,
         }
 
-        if leverage is not None:
+        if leverage is not None and (
+            symbol not in self.symbols_leverage
+            or self.symbols_leverage[symbol] != leverage
+        ):
             self.client.futures_change_leverage(symbol=symbol, leverage=leverage)
+            self.symbols_leverage[symbol] = leverage
 
         if price:
             params["price"] = self.refine_price(symbol, price)
@@ -80,6 +85,8 @@ class Trading(object):
         #     orders[i * chunk_size : (i + 1) * chunk_size]
         #     for i in range((len(orders) + chunk_size - 1) // chunk_size)
         # ]
+
+        self.client.create_
 
         pass
 
@@ -105,6 +112,8 @@ class Trading(object):
             responses.append(self.client.futures_cancel_orders(**params))
 
         flatten_response = [item for sublist in responses for item in sublist]
+
+        print(flatten_response)
 
         return flatten_response
 

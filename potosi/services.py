@@ -53,6 +53,7 @@ class TradeService(object):
                 order_type="LIMIT",
                 price=str(entry[0]),
                 quantity=str(entry[1]),
+                leverage=leverage,
             )
 
             Order.create(
@@ -100,6 +101,9 @@ class TradeService(object):
         extract_order_id: Callable[[Order], int] = lambda order: order.order_id
 
         orders_id = list(map(extract_order_id, trade.orders))
+
+        print(orders_id)
+
         self.trading.close_multiple_orders(symbol, orders_id)
 
         trade.is_opened = False
@@ -130,7 +134,9 @@ class TradeService(object):
         signal = self.parser_signal.parser_signal_created(trade.raw_signal)
         to_insert = []
 
-        if order_event.order_status == "FILLED":
+        if order_event.order_status == "NEW":
+            pass
+        elif order_event.order_status == "FILLED":
             if order.is_entry_order() and order.type == "LIMIT":
 
                 if not order.is_first_target():

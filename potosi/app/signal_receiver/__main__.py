@@ -8,7 +8,6 @@ from binance.client import Client as BinanceClient
 from telethon import events, TelegramClient
 
 from potosi.config import settings
-from potosi.db import database
 from potosi.log import get_logger
 from potosi.parser_signal import ParserSignal
 from potosi.services import TradeService
@@ -59,6 +58,7 @@ async def message_created_trade(event):
         trade_service.create(event.message.message)
         logger.info("trade created")
     except Exception as e:
+        logger.info("DEU MERDA")
         logger.error("A error occurs when trying create trade")
         logger.exception(e)
 
@@ -79,7 +79,6 @@ async def message_signal_close(event):
 
 
 if __name__ == "__main__":
-    with database:
-        with client:
-            logger.info("Start listener")
-            client.run_until_disconnected()
+    with client:
+        logger.info("Start listener")
+        client.run_until_disconnected()
