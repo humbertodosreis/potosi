@@ -5,6 +5,10 @@ import urllib
 
 from binance.client import Client
 
+from .log import get_logger
+
+logger = get_logger(__name__)
+
 
 class Trading(object):
     def __init__(self, binance_client: Client):
@@ -38,6 +42,11 @@ class Trading(object):
             self.highest_precision + 1
         )  # for operations and rounding
 
+        try:
+            self.client.futures_change_position_mode(dualSidePosition=True)
+        except Exception as e:
+            logger.info(e)
+
         # load rate limits
         self.rate_limits = infos["rateLimits"]
         self.loaded = True
@@ -52,14 +61,13 @@ class Trading(object):
         stop_price=None,
         reduce_only=False,
         leverage=None,
+        position_side=None,
     ) -> dict:
         params = {
             "symbol": symbol,
             "side": side,
             "type": order_type,
-            "timeInForce": Client.TIME_IN_FORCE_GTC,
             "quantity": self.refine_amount(symbol, quantity),
-            "reducyOnly": reduce_only,
         }
 
         if leverage is not None and (
@@ -75,19 +83,32 @@ class Trading(object):
         if stop_price:
             params["stopPrice"] = self.refine_price(symbol, stop_price)
 
+        if reduce_only is not None:
+            params["reduce_only"] = reduce_only
+
+        if position_side is not None:
+            params["positionSide"] = position_side
+
+        if order_type == "LIMIT":
+            params["timeInForce"] = Client.TIME_IN_FORCE_GTC
+
         order = self.client.futures_create_order(**params)
 
         return order
 
+    def stop_market(self, symbol, stop_price):
+        params = {
+            "symbol": symbol,
+            "closePosition": True,
+            "type": "STOP_MARKET",
+            "side": "SELL",
+            "stopPrice": stop_price,
+            "positionSide": "LONG",
+        }
+
+        return self.client.futures_create_order(**params)
+
     def create_multiple_orders(self, orders):
-        # chunk_size = 5
-        # chunked_orders = [
-        #     orders[i * chunk_size : (i + 1) * chunk_size]
-        #     for i in range((len(orders) + chunk_size - 1) // chunk_size)
-        # ]
-
-        self.client.create_
-
         pass
 
     def close_multiple_orders(self, symbol, orders):
@@ -112,8 +133,6 @@ class Trading(object):
             responses.append(self.client.futures_cancel_orders(**params))
 
         flatten_response = [item for sublist in responses for item in sublist]
-
-        print(flatten_response)
 
         return flatten_response
 

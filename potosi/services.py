@@ -54,6 +54,7 @@ class TradeService(object):
                 price=str(entry[0]),
                 quantity=str(entry[1]),
                 leverage=leverage,
+                position_side="LONG",
             )
 
             Order.create(
@@ -70,11 +71,8 @@ class TradeService(object):
             target = target + 1
 
         # stop loss order
-        sl_order = self.trading.create_order(
+        sl_order = self.trading.stop_market(
             symbol=signal_parsed["symbol"],
-            side=BinanceClient.SIDE_SELL,
-            order_type="STOP_MARKET",
-            quantity=total_amount,
             stop_price=signal_parsed["stoploss"],
         )
 
@@ -98,13 +96,34 @@ class TradeService(object):
         if trade is None:
             return
 
+        # quantity filled
+        query = Order.select(fn.SUM(Order.amount)).where(
+            (Order.trade == trade)
+            & (Order.place_type == OrderPlaceType.ENTRY)
+            & ((Order.status == "FILLED") | (Order.status == "PARTIALLY_FILLED"))
+        )
+
+        # calcular quando nao tiver saldo para criar as demais ordens
+        result_query = query.scalar()
+        amount = 0 if result_query is None else result_query
+
         extract_order_id: Callable[[Order], int] = lambda order: order.order_id
 
         orders_id = list(map(extract_order_id, trade.orders))
 
-        print(orders_id)
-
+        # close open orders
         self.trading.close_multiple_orders(symbol, orders_id)
+
+        # close position
+        if amount > 0:
+            closed_position = self.trading.create_order(
+                symbol=symbol,
+                order_type="MARKET",
+                side="SELL",
+                position_side="LONG",
+                quantity=amount,
+            )
+            print(closed_position)
 
         trade.is_opened = False
         trade.save()
@@ -138,7 +157,6 @@ class TradeService(object):
             pass
         elif order_event.order_status == "FILLED":
             if order.is_entry_order() and order.type == "LIMIT":
-
                 if not order.is_first_target():
                     entry_orders = (
                         Order.select(Order.order_id)
@@ -146,6 +164,7 @@ class TradeService(object):
                             (Order.trade == trade)
                             & (Order.place_type == OrderPlaceType.EXIT)
                             & (Order.status == "NEW")
+                            & (Order.type == "LIMIT")
                         )
                         .dicts()
                     )
@@ -162,6 +181,7 @@ class TradeService(object):
                             Order.order_id << orders_id
                         ).execute()
 
+                # calcular quando nao tiver saldo para criar as demais ordens
                 query = Order.select(fn.SUM(Order.amount)).where(
                     (Order.trade == trade)
                     & (Order.place_type == OrderPlaceType.ENTRY)
@@ -171,7 +191,6 @@ class TradeService(object):
                     )
                 )
 
-                # calcular quando nao tiver saldo para criar as demais ordens
                 result_query = query.scalar()
                 amount = 0 if result_query is None else result_query
                 amount_per_target = amount / len(signal["exit_targets"])
@@ -185,6 +204,7 @@ class TradeService(object):
                         price=str(entry),
                         quantity=str(amount_per_target),
                         reduce_only=True,
+                        position_side="LONG",
                     )
 
                     to_insert.append(
@@ -226,50 +246,6 @@ class TradeService(object):
                             Order.order_id << orders_id
                         ).execute()
 
-                # update stoploss order
-                stoploss_order = Order.get(
-                    (Order.type == "STOP_MARKET")
-                    & (Order.place_type == OrderPlaceType.EXIT)
-                )
-
-                self.trading.close_multiple_orders(
-                    symbol=trade.symbol, orders=[stoploss_order.order_id]
-                )
-                stoploss_order.status = "CANCELLED"
-                stoploss_order.save()
-
-                query = Order.select(fn.SUM(Order.amount)).where(
-                    (Order.trade == trade)
-                    & (Order.place_type == OrderPlaceType.ENTRY)
-                    & (
-                        (Order.status == "FILLED")
-                        | (Order.status == "PARTIALLY_FILLED")
-                    )
-                )
-
-                # calcular quando nao tiver saldo para criar as demais ordens
-                result_query = query.scalar()
-                amount = 0 if result_query is None else result_query
-
-                # stop loss order
-                new_sl_order = self.trading.create_order(
-                    symbol=trade.symbol,
-                    side=BinanceClient.SIDE_SELL,
-                    order_type="STOP_MARKET",
-                    quantity=amount,
-                    stop_price=stoploss_order,
-                )
-
-                Order.create(
-                    trade=trade,
-                    order_id=new_sl_order["orderId"],
-                    client_order_id=new_sl_order["clientOrderId"],
-                    symbol=new_sl_order["symbol"],
-                    type=new_sl_order["type"],
-                    status=new_sl_order["status"],
-                    place_type=OrderPlaceType.EXIT,
-                    amount=new_sl_order["origQty"],
-                )
             elif order.type == "STOP_MARKET":
                 entry_orders = (
                     Order.select(Order.order_id)

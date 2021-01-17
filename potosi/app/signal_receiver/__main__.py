@@ -58,7 +58,6 @@ async def message_created_trade(event):
         trade_service.create(event.message.message)
         logger.info("trade created")
     except Exception as e:
-        logger.info("DEU MERDA")
         logger.error("A error occurs when trying create trade")
         logger.exception(e)
 

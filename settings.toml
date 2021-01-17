@@ -2,7 +2,7 @@
 version = "1.0.0"
 name = "potosi"
 ENV="development"
-USER_INPUT_CHANNEL="me"
+USER_INPUT_CHANNEL="https://t.me/me"
 DB_USER="postgres"
 DB_PASSWORD="123456"
 DB_NAME="postgres"
