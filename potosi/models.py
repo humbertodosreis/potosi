@@ -37,6 +37,7 @@ class Order(BaseModel):
     amount = DecimalField(max_digits=14, decimal_places=8, default=0.0)
     place_type = SmallIntegerField(default=OrderPlaceType.ENTRY)
     target = SmallIntegerField(default=0)
+    price = DecimalField(max_digits=14, decimal_places=8, default=0.0)
     created_date = DateTimeField(default=datetime.datetime.now)
     trade = ForeignKeyField(Trade, backref="orders", on_delete="CASCADE")
 
@@ -48,3 +49,6 @@ class Order(BaseModel):
 
     def is_first_target(self) -> bool:
         return self.target == 1
+
+    def is_nth_target(self, nth) -> bool:
+        return self.target == nth

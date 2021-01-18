@@ -1,4 +1,5 @@
-# from playhouse.migrate import migrate
+from peewee import DecimalField, ProgrammingError
+from playhouse.migrate import migrate, PostgresqlMigrator
 
 from potosi.db import database
 from potosi.log import get_logger
@@ -21,7 +22,18 @@ def run_create_tables():
 
 
 def run_migrators():
-    pass
+    migrator = PostgresqlMigrator(database)
+    try:
+        migrate(
+            migrator.set_search_path("public"),
+            migrator.add_column(
+                "order",
+                "price",
+                DecimalField(max_digits=14, decimal_places=8, default=0.0),
+            ),
+        )
+    except ProgrammingError as e:
+        logger.error(e)
 
 
 if __name__ == "__main__":

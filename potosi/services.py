@@ -97,15 +97,7 @@ class TradeService(object):
             return
 
         # quantity filled
-        query = Order.select(fn.SUM(Order.amount)).where(
-            (Order.trade == trade)
-            & (Order.place_type == OrderPlaceType.ENTRY)
-            & ((Order.status == "FILLED") | (Order.status == "PARTIALLY_FILLED"))
-        )
-
-        # calcular quando nao tiver saldo para criar as demais ordens
-        result_query = query.scalar()
-        amount = 0 if result_query is None else result_query
+        amount = self.__calculate_amount_from_filled_orders(trade)
 
         extract_order_id: Callable[[Order], int] = lambda order: order.order_id
 
@@ -116,14 +108,13 @@ class TradeService(object):
 
         # close position
         if amount > 0:
-            closed_position = self.trading.create_order(
+            self.trading.create_order(
                 symbol=symbol,
                 order_type="MARKET",
                 side="SELL",
                 position_side="LONG",
                 quantity=amount,
             )
-            print(closed_position)
 
         trade.is_opened = False
         trade.save()
@@ -144,6 +135,7 @@ class TradeService(object):
             or order_event.order_status == "PARTIALLY_FILLED"
         ):
             order.amount = order_event.last_filled_qty
+            order.price = order_event.price
 
         order.save()
 
@@ -158,93 +150,52 @@ class TradeService(object):
         elif order_event.order_status == "FILLED":
             if order.is_entry_order() and order.type == "LIMIT":
                 if not order.is_first_target():
-                    entry_orders = (
-                        Order.select(Order.order_id)
-                        .where(
-                            (Order.trade == trade)
-                            & (Order.place_type == OrderPlaceType.EXIT)
-                            & (Order.status == "NEW")
-                            & (Order.type == "LIMIT")
-                        )
-                        .dicts()
-                    )
-
-                    orders_id = []
-                    for row in entry_orders:
-                        orders_id.append(row["order_id"])
-
-                    if len(orders_id):
-                        self.trading.close_multiple_orders(
-                            symbol=trade.symbol, orders=orders_id
-                        )
-                        Order.update(status="CANCELLED").where(
-                            Order.order_id << orders_id
-                        ).execute()
+                    self.__close_all_exit_orders(trade)
 
                 # calcular quando nao tiver saldo para criar as demais ordens
-                query = Order.select(fn.SUM(Order.amount)).where(
-                    (Order.trade == trade)
-                    & (Order.place_type == OrderPlaceType.ENTRY)
-                    & (
-                        (Order.status == "FILLED")
-                        | (Order.status == "PARTIALLY_FILLED")
-                    )
-                )
-
-                result_query = query.scalar()
-                amount = 0 if result_query is None else result_query
+                amount = self.__calculate_amount_from_filled_orders(trade)
                 amount_per_target = amount / len(signal["exit_targets"])
-                nth = 1
 
-                for entry in signal["exit_targets"]:
-                    result = self.trading.create_order(
-                        symbol=signal["symbol"],
-                        side=BinanceClient.SIDE_SELL,
-                        order_type="LIMIT",
-                        price=str(entry),
-                        quantity=str(amount_per_target),
-                        reduce_only=True,
-                        position_side="LONG",
-                    )
+                self.__open_exit_orders(amount_per_target, signal, to_insert, trade)
 
-                    to_insert.append(
-                        {
-                            "order_id": result["orderId"],
-                            "client_order_id": result["clientOrderId"],
-                            "symbol": result["symbol"],
-                            "type": result["type"],
-                            "status": result["status"],
-                            "trade": trade,
-                            "target": nth,
-                            "place_type": OrderPlaceType.EXIT,
-                        }
-                    )
-                    nth = nth + 1
-
-                Order.insert_many(to_insert).execute()
             elif order.is_exit_order() and order.type == "LIMIT":
                 if order.is_first_target():
-                    entry_orders = (
+                    self.__close_all_pending_entry_orders(trade)
+                elif order.is_nth_target(2):
+                    sl_order = (
                         Order.select(Order.order_id)
                         .where(
                             (Order.trade == trade)
-                            & (Order.place_type == OrderPlaceType.ENTRY)
                             & (Order.status == "NEW")
+                            & (Order.type == "STOP_MARKET")
+                            & (Order.place_type == OrderPlaceType.ENTRY)
                         )
-                        .dicts()
+                        .get()
                     )
 
-                    orders_id = []
-                    for row in entry_orders:
-                        orders_id.append(row["order_id"])
+                    self.trading.close_multiple_orders(
+                        trade.symbol, [sl_order.order_id]
+                    )
 
-                    if len(orders_id):
-                        self.trading.close_multiple_orders(
-                            symbol=trade.symbol, orders=orders_id
-                        )
-                        Order.update(status="CANCELLED").where(
-                            Order.order_id << orders_id
-                        ).execute()
+                    sl_order.status = "CANCELLED"
+                    sl_order.save()
+
+                    avg = self.__calculate_avg_from_filled_orders(trade)
+                    new_sl_order = self.trading.stop_market(
+                        symbol=trade.symbol,
+                        stop_price=avg,
+                    )
+
+                    Order.create(
+                        trade=trade,
+                        order_id=new_sl_order["orderId"],
+                        client_order_id=new_sl_order["clientOrderId"],
+                        symbol=new_sl_order["symbol"],
+                        type=new_sl_order["type"],
+                        status=new_sl_order["status"],
+                        place_type=OrderPlaceType.ENTRY,
+                        amount=new_sl_order["origQty"],
+                    )
 
             elif order.type == "STOP_MARKET":
                 entry_orders = (
@@ -267,3 +218,89 @@ class TradeService(object):
 
                 trade.is_opened = False
                 trade.save()
+
+    def __close_all_pending_entry_orders(self, trade):
+        entry_orders = (
+            Order.select(Order.order_id)
+            .where(
+                (Order.trade == trade)
+                & (Order.place_type == OrderPlaceType.ENTRY)
+                & (Order.status == "NEW")
+            )
+            .dicts()
+        )
+        orders_id = []
+        for row in entry_orders:
+            orders_id.append(row["order_id"])
+        if len(orders_id):
+            self.trading.close_multiple_orders(symbol=trade.symbol, orders=orders_id)
+            Order.update(status="CANCELLED").where(
+                Order.order_id << orders_id
+            ).execute()
+
+    def __open_exit_orders(self, amount_per_target, signal, to_insert, trade):
+        nth = 1
+
+        for entry in signal["exit_targets"]:
+            result = self.trading.create_order(
+                symbol=signal["symbol"],
+                side=BinanceClient.SIDE_SELL,
+                order_type="LIMIT",
+                price=str(entry),
+                quantity=str(amount_per_target),
+                reduce_only=True,
+                position_side="LONG",
+            )
+
+            to_insert.append(
+                {
+                    "order_id": result["orderId"],
+                    "client_order_id": result["clientOrderId"],
+                    "symbol": result["symbol"],
+                    "type": result["type"],
+                    "status": result["status"],
+                    "trade": trade,
+                    "target": nth,
+                    "place_type": OrderPlaceType.EXIT,
+                }
+            )
+            nth = nth + 1
+        Order.insert_many(to_insert).execute()
+
+    def __calculate_amount_from_filled_orders(self, trade):
+        query = Order.select(fn.SUM(Order.amount)).where(
+            (Order.trade == trade)
+            & (Order.place_type == OrderPlaceType.ENTRY)
+            & ((Order.status == "FILLED") | (Order.status == "PARTIALLY_FILLED"))
+        )
+        result_query = query.scalar()
+        return 0 if result_query is None else result_query
+
+    def __calculate_avg_from_filled_orders(self, trade):
+        query = Order.select(fn.AVG(Order.price)).where(
+            (Order.trade == trade)
+            & (Order.place_type == OrderPlaceType.ENTRY)
+            & ((Order.status == "FILLED") | (Order.status == "PARTIALLY_FILLED"))
+        )
+        result_query = query.scalar()
+        return 0 if result_query is None else result_query
+
+    def __close_all_exit_orders(self, trade):
+        entry_orders = (
+            Order.select(Order.order_id)
+            .where(
+                (Order.trade == trade)
+                & (Order.place_type == OrderPlaceType.EXIT)
+                & (Order.status == "NEW")
+                & (Order.type == "LIMIT")
+            )
+            .dicts()
+        )
+        orders_id = []
+        for row in entry_orders:
+            orders_id.append(row["order_id"])
+        if len(orders_id):
+            self.trading.close_multiple_orders(symbol=trade.symbol, orders=orders_id)
+            Order.update(status="CANCELLED").where(
+                Order.order_id << orders_id
+            ).execute()
