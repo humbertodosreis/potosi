@@ -20,6 +20,13 @@ class TradeService(object):
     def create(self, raw_signal: str):
         signal_parsed = self.parser_signal.parser_signal_created(raw_signal)
 
+        if (
+            signal_parsed["market"] != "BinanceFutures"
+            or signal_parsed["position_side"] == "Short"
+        ):
+            logger.info("Only open trade for Long for Binance Futures")
+            return
+
         # 20 USD
         entry_zone = signal_parsed["entry_zone"]
         leverage = signal_parsed["leverage"]
@@ -32,11 +39,11 @@ class TradeService(object):
         if len(entry_zone) == 3:
             entries_percentages = [amount * 0.7, amount * 0.2, amount * 0.1]
         elif len(entry_zone) == 2:
-            entries_percentages = [amount * 0.8, amount * 0.1]
+            entries_percentages = [amount * 0.8, amount * 0.2]
 
         for i, v in enumerate(entries_percentages):
-            amount = float(v) / float(entry_zone[i])
-            entries.append([float(entry_zone[i]), amount])
+            amount_per_entry = float(v) / float(entry_zone[i])
+            entries.append([float(entry_zone[i]), amount_per_entry])
 
         trade_created = Trade.create(
             symbol=signal_parsed["symbol"], raw_signal=raw_signal
@@ -100,7 +107,6 @@ class TradeService(object):
         amount = self.__calculate_amount_from_filled_orders(trade)
 
         extract_order_id: Callable[[Order], int] = lambda order: order.order_id
-
         orders_id = list(map(extract_order_id, trade.orders))
 
         # close open orders

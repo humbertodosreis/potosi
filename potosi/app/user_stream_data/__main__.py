@@ -18,6 +18,8 @@ from potosi.trading import Trading
 
 logger = get_logger(__name__)
 
+WEBSOCKET_EXCHANGE = "binance.com-futures-testnet"
+
 # binance client
 binance_client = BinanceClient(settings.BINANCE_API_KEY, settings.BINANCE_API_SECRET)
 binance_client.FUTURES_URL = "https://testnet.binancefuture.com/fapi"
@@ -60,7 +62,7 @@ if __name__ == "__main__":
     logger.info("starting...")
 
     # create instances of BinanceWebSocketApiManager
-    ubwa_com = BinanceWebSocketApiManager(exchange="binance.com-futures-testnet")
+    ubwa_com = BinanceWebSocketApiManager(exchange=WEBSOCKET_EXCHANGE)
 
     # create the userData streams
     user_stream_id = ubwa_com.create_stream(

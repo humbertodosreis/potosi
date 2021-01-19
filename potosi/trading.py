@@ -150,19 +150,27 @@ class Trading(object):
             amount = decimal.Decimal(amount)
 
         if self.loaded:
-            precision = self.symbols[symbol]["baseAssetPrecision"]
+            # precision = self.symbols[symbol]["baseAssetPrecision"]
             lot_size_filter = self.symbols[symbol]["filters"]["LOT_SIZE"]
             step_size = decimal.Decimal(lot_size_filter["stepSize"])
-            amount = (
-                (
-                    f"%.{precision}f"
-                    % self.__truncate(
-                        amount if quote else (amount - amount % step_size), precision
-                    )
-                )
-                .rstrip("0")
-                .rstrip(".")
-            )
+
+            digits = int(round(-math.log(decimal.Decimal(step_size), 10), 0))
+            amount = decimal.Decimal(round(amount, digits))
+
+            # logger.debug(_qta_end)
+
+            # amount = (
+            #     (
+            #         f"%.{precision}f"
+            #         % self.__truncate(
+            #             amount if quote else (amount - amount % step_size), precision
+            #         )
+            #     )
+            #     .rstrip("0")
+            #     .rstrip(".")
+            # )
+            # logger.debug(amount)
+
         return amount
 
     def refine_price(self, symbol, price: Union[str, decimal.Decimal]):

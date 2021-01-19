@@ -61,6 +61,17 @@ Profit  13.95%"""
     assert result2 == "LTCUSDT"
 
 
+def test_parse_signal_cancelled():
+    signal = """ℹ️ #LINKUSDT Signal Cancelled
+
+〽️ BinanceFutures With 5x Leverage"""
+
+    parser = ParserSignal()
+    result = parser.parser_signal_closed(signal)
+
+    assert result == "LINKUSDT"
+
+
 def test_parser_stoploss_updated():
     signal = """⚠️ #BNBUSDT Stoploss Updated
 

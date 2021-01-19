@@ -21,7 +21,6 @@ class ParserSignal(object):
         """
         Given a text with some signal, returns either dict.
         """
-        # self.__download_codes()
 
         lines = demoji.replace(signal_text, "").splitlines()
 
@@ -72,7 +71,7 @@ class ParserSignal(object):
         # self.__download_codes()
 
         signal_text = demoji.replace(signal_text, "")
-        match = re.search(r"#([A-Z0-9]+) Signal Closed", signal_text)
+        match = re.search(r"#([A-Z0-9]+) Signal (Closed|Cancelled)", signal_text)
 
         if not match:
             match = re.search("Update: Signal ([A-Z0-9]+) Closed", signal_text)

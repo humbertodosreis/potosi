@@ -44,7 +44,11 @@ def is_signal_created(msg: str) -> bool:
 
 
 def is_signal_closed(msg: str) -> bool:
-    return "Signal Closed" in msg or re.search("Update: Signal ([A-Z0-9]+) Closed", msg)
+    return (
+        "Signal Closed" in msg
+        or "Signal Cancelled" in msg
+        or re.search("Update: Signal ([A-Z0-9]+) Closed", msg)
+    )
 
 
 def is_stoploss_updated(msg: str) -> bool:
