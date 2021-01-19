@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from os import environ, path
+from os import path
 import re
 
 from binance.client import Client as BinanceClient
@@ -23,20 +23,7 @@ client = TelegramClient(
 )
 
 # user_input_channel = 'wcsebot'
-USER_INPUT_CHANNEL = environ.get("USER_INPUT_CHANNEL")
-
-# binance client
-binance_client = BinanceClient(settings.BINANCE_API_KEY, settings.BINANCE_API_SECRET)
-binance_client.FUTURES_URL = "https://testnet.binancefuture.com/fapi"
-binance_client.API_URL = "https://testnet.binance.vision/api"
-
-trade = Trading(binance_client=binance_client)
-trade.load()
-
-parser = ParserSignal()
-parser.download_codes()
-
-trade_service = TradeService(trading=trade, parser=parser)
+USER_INPUT_CHANNEL = settings.USER_INPUT_CHANNEL
 
 
 def is_signal_created(msg: str) -> bool:
@@ -82,6 +69,23 @@ async def message_signal_close(event):
 
 
 if __name__ == "__main__":
+    # binance client
+    binance_client = BinanceClient(
+        settings.BINANCE_API_KEY, settings.BINANCE_API_SECRET
+    )
+    binance_client.FUTURES_URL = "https://testnet.binancefuture.com/fapi"
+    binance_client.API_URL = "https://testnet.binance.vision/api"
+
+    trade = Trading(binance_client=binance_client)
+    trade.load()
+
+    parser = ParserSignal()
+    parser.download_codes()
+
+    trade_service = TradeService(trading=trade, parser=parser)
+
     with client:
-        logger.info("Start listener")
+        logger.info("starting")
+        logger.info(f'Listening from "{USER_INPUT_CHANNEL}"')
+
         client.run_until_disconnected()
