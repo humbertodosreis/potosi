@@ -22,8 +22,10 @@ WEBSOCKET_EXCHANGE = "binance.com-futures-testnet"
 
 # binance client
 binance_client = BinanceClient(settings.BINANCE_API_KEY, settings.BINANCE_API_SECRET)
-binance_client.FUTURES_URL = "https://testnet.binancefuture.com/fapi"
-binance_client.API_URL = "https://testnet.binance.vision/api"
+
+if settings.ENV != "production":
+    binance_client.FUTURES_URL = "https://testnet.binancefuture.com/fapi"
+    binance_client.API_URL = "https://testnet.binance.vision/api"
 
 trade = Trading(binance_client=binance_client)
 trade.load()
