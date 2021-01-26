@@ -20,6 +20,9 @@ logger = get_logger(__name__)
 
 WEBSOCKET_EXCHANGE = "binance.com-futures-testnet"
 
+if settings.ENV == "production":
+    WEBSOCKET_EXCHANGE = "binance.com-futures"
+
 # binance client
 binance_client = BinanceClient(settings.BINANCE_API_KEY, settings.BINANCE_API_SECRET)
 
