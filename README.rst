@@ -3,12 +3,6 @@ Potosi Bot trader
 
 Pet project to make trade in binance.
 
-# Why Potosi' name?
-
-Potosí is a city in Bolivia (it is one of the highest cities in the world). For centuries, it was the location of the Spanish colonial silver mint.
-
-[See more](https://en.wikipedia.org/wiki/Potos%C3%AD)
-
 References
 ----------
 * https://github.com/nedludd0/binance-exchange-python-api
@@ -33,3 +27,11 @@ Tutorials
 Dependencies
 ------------
 * https://tl.telethon.dev/index.html
+
+
+Why Potosi' name?
+------------
+
+Potosí is a city in Bolivia (it is one of the highest cities in the world). For centuries, it was the location of the Spanish colonial silver mint.
+
+[See more](https://en.wikipedia.org/wiki/Potos%C3%AD)
